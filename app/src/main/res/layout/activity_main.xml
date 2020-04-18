@@ -14,9 +14,10 @@
         android:text="点我删除"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-    <TextView
-        android:id="@+id/tv_main"
+    <Button
+        android:onClick="exportCalendar"
+        android:text="点我生成Ics"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

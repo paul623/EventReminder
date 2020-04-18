@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.paul.eventreminder.model.CalendarEvent;
 import com.paul.eventreminder.utils.ColorPool;
+import com.paul.eventreminder.utils.ICSRulesHelper;
 import com.paul.eventreminder.utils.TimeUtil;
 
 import java.io.File;
@@ -21,6 +22,8 @@ import biweekly.ICalendar;
 import biweekly.component.VAlarm;
 import biweekly.component.VEvent;
 import biweekly.parameter.Related;
+import biweekly.property.Color;
+import biweekly.property.RecurrenceRule;
 import biweekly.property.Trigger;
 import biweekly.util.Duration;
 
@@ -29,11 +32,9 @@ public class ICSManager {
     int alarm_seconds=15;
     String userName="默认日历";
     Context context;
-    OutPutListener listener;
 
-    public ICSManager(Context context,String userName, OutPutListener listener) {
+    public ICSManager(Context context,String userName) {
         this.userName = userName;
-        this.listener = listener;
         this.context=context;
     }
 
@@ -45,7 +46,7 @@ public class ICSManager {
         this.alarm_seconds = alarm_seconds;
     }
 
-    public  void exportToFile(String filename, List<CalendarEvent>calendarEvents, int curWeek){
+    private void exportToFile(String filename, List<VEvent> vEvents,OutPutListener listener){
         ICalendar ical = new ICalendar();
 
         final File[] dirs = context.getExternalFilesDirs("Documents");
@@ -56,8 +57,7 @@ public class ICSManager {
         if(primaryDir==null){
             return ;
         }
-        List<VEvent> data=getDataSource(calendarEvents,curWeek);
-        for(VEvent i:data){
+        for(VEvent i:vEvents){
             ical.addEvent(i);
         }
         File file = new File(primaryDir.getAbsolutePath(), filename + ".ics");
@@ -68,14 +68,14 @@ public class ICSManager {
             Biweekly.write(ical).go(file);
             listener.onSuccess(file.getAbsolutePath());
         } catch (IOException e) {
+            listener.onError(e+"");
             e.printStackTrace();
         }
     }
     /**
      * 把数据源转为VEvent
      * */
-    private  List<VEvent> getDataSource(List<CalendarEvent> calendarEvents,int curWeek){
-
+    private  List<VEvent> getDataSource(List<CalendarEvent> calendarEvents,int curWeek,OutPutListener listener){
         List<VEvent> vEvents=new ArrayList<>();
         int count=0;
         for(CalendarEvent lesson:calendarEvents){
@@ -85,6 +85,19 @@ public class ICSManager {
             String endTime=lesson.getEndTime();
             vEvents.addAll(addToEventList(lesson,startTime,endTime,curWeek,listener, ColorPool.getColor()));
         }
+        return vEvents;
+    }
+    /**
+     * 把数据源转为VEvent
+     * */
+    private  List<VEvent> getDataSource(CalendarEvent calendarEvent,int curWeek,OutPutListener listener){
+
+        List<VEvent> vEvents=new ArrayList<>();
+
+        String startTime=calendarEvent.getStartTime();
+        String endTime=calendarEvent.getEndTime();
+        vEvents.addAll(addToEventList(calendarEvent,startTime,endTime,curWeek,listener, ColorPool.getColor()));
+
         return vEvents;
     }
     private  List<VEvent> addToEventList(CalendarEvent model,String startTime,String endTime,int curWeek,OutPutListener listener,String color){
@@ -105,7 +118,7 @@ public class ICSManager {
                 event.setDateStart(realStartDate);
                 event.setDateEnd(realEndDate);
                 event.setLocation(model.getLoc());
-
+                event.setTransparency(true);
                 String des="第"+i+"周 | "+model.getStartTime()+"-"+model.getEndTime()+" "+model.getContent();
                 event.setDescription(des);
                 event.setColor(color);
@@ -115,7 +128,6 @@ public class ICSManager {
                     VAlarm alarm = VAlarm.display(trigger, model.getSummary()+"于"+alarm_seconds+"分钟后开始");
                     event.addAlarm(alarm);
                 }
-
                 vEventList.add(event);
             } catch (ParseException e) {
                 listener.onError("出错了:"+e);
@@ -129,5 +141,64 @@ public class ICSManager {
         public void onError(String msg);
         public void onProgress(int now,int total);
         public void onSuccess(String filedir);
+    }
+    /**
+     * 输出
+     * @param filename 生成的文件名称
+     * @param useRule true使用 false不使用 重复规则
+     * */
+    public void OutPutIcsFile(String filename,boolean useRule,List<CalendarEvent> calendarEvents,int curWeek,OutPutListener listener){
+        //exportToFile(String filename, List<CalendarEvent>calendarEvents, int curWeek,OutPutListener listener)
+        if(useRule){
+            //使用重复规则
+            exportToFile(filename,getEventByRule(curWeek,calendarEvents,listener),listener);
+        }else {
+            exportToFile(filename,getDataSource(calendarEvents,curWeek,listener),listener);
+        }
+    }
+    public List<VEvent> getEventByRule(int curWeek, List<CalendarEvent> calendarEvents, OutPutListener listener){
+        List<VEvent> events=new ArrayList<>();
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf2=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        int thisDay=TimeUtil.getTodayWeekNumber();
+        int count=0;
+        for(CalendarEvent model:calendarEvents){
+            count++;
+            listener.onProgress(count,calendarEvents.size());
+            Date date= TimeUtil.getTargetDate(curWeek,model.getWeekList().get(0),thisDay,model.getDayOfWeek());
+            String dateString=sdf.format(date);
+            Date realStartDate= null;
+            try {
+                RecurrenceRule rRule = ICSRulesHelper.getRRule(model);
+                if(rRule==null){
+                    events.addAll(getDataSource(model,curWeek,listener));
+                }else {
+                    realStartDate = sdf2.parse(dateString+" "+model.getStartTime());
+                    Date realEndDate=sdf2.parse(dateString+" "+model.getEndTime());
+                    VEvent event=new VEvent();
+                    event.setSummary(model.getSummary());
+                    event.setDateStart(realStartDate);
+                    event.setDateEnd(realEndDate);
+                    event.setLocation(model.getLoc());
+                    event.setTransparency(true);
+                    String des=model.getStartTime()+"-"+model.getEndTime()+" "+model.getContent();
+                    event.setDescription(des);
+                    event.setColor(ColorPool.getColor());
+                    if(falg_alarm){
+                        Duration duration = Duration.builder().prior(true).minutes(alarm_seconds).build();
+                        Trigger trigger = new Trigger(duration, Related.START);
+                        VAlarm alarm = VAlarm.display(trigger, model.getSummary()+"于"+alarm_seconds+"分钟后开始");
+                        event.addAlarm(alarm);
+                    }
+                    event.setRecurrenceRule(rRule);
+                    events.add(event);
+                }
+            } catch (ParseException e) {
+                listener.onError(e+"");
+                e.printStackTrace();
+            }
+
+        }
+        return events;
     }
 }

@@ -53,7 +53,7 @@ publish{
     userOrg='paul623'
     groupId='com.paul.eventreminder'
     artifactId='eventreminder'
-    publishVersion='0.0.1'
+    publishVersion='0.0.3'
     desc='Make Android Output Calendar Event more easier'
     website='https://github.com/paul623/EventReminder'
 }

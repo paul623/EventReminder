@@ -11,41 +11,26 @@ import android.widget.Toast;
 import com.paul.eventreminder.CalendarManager;
 import com.paul.eventreminder.ICSManager;
 import com.paul.eventreminder.model.CalendarEvent;
+import com.paul.eventreminder.utils.CoverUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
     CalendarManager calendarManager;
-    TextView textView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         calendarManager=new CalendarManager(this,"测试");
-        textView=findViewById(R.id.tv_main);
-
 
     }
 
     public void inputCalendar(View view) {
 
-        CalendarEvent calendarEvent=new CalendarEvent();
-        calendarEvent.setContent("我是一个测试消息");
-        calendarEvent.setDayOfWeek(6);
-        calendarEvent.setStartTime("8:00");
-        calendarEvent.setEndTime("10:00");
-        calendarEvent.setSummary("测试课程");
-        calendarEvent.setLoc("教室");
-        List<Integer> integers=new ArrayList<>();
-        for(int i=1;i<14;i++){
-            integers.add(i);
-        }
-        calendarEvent.setWeekList(integers);
-        calendarManager.init();
         calendarManager.setAlarm(true);
         calendarManager.setAlarmTime(20);
-        calendarManager.addCalendarEvent(calendarEvent, 8, new CalendarManager.OnExportProgressListener() {
+        calendarManager.addCalendarEvent(getTestEvent(), 8, new CalendarManager.OnExportProgressListener() {
             @Override
             public void onProgress(int total, int now) {
 
@@ -81,6 +66,42 @@ public class MainActivity extends Activity {
                 Toast.makeText(MainActivity.this,"成功",Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void exportCalendar(View view) {
+        ICSManager icsManager=new ICSManager(MainActivity.this,"测试");
+        icsManager.setFalg_alarm(true);
+        icsManager.setAlarm_seconds(20);
+        List<CalendarEvent> calendarEvents=new ArrayList<>();
+        calendarEvents.add(getTestEvent());
+        icsManager.OutPutIcsFile("testICS", true,calendarEvents, 8, new ICSManager.OutPutListener() {
+            @Override
+            public void onError(String msg) {
+
+            }
+
+            @Override
+            public void onProgress(int now, int total) {
+
+            }
+
+            @Override
+            public void onSuccess(String filedir) {
+                Toast.makeText(MainActivity.this,"成功"+filedir,Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    public CalendarEvent getTestEvent(){
+        CalendarEvent calendarEvent=new CalendarEvent();
+        calendarEvent.setContent("我是一个测试消息");
+        calendarEvent.setDayOfWeek(6);
+        calendarEvent.setStartTime("8:00");
+        calendarEvent.setEndTime("10:00");
+        calendarEvent.setSummary("测试课程");
+        calendarEvent.setLoc("教室");
+        Integer lists[]={2,4,6,8,10};
+        calendarEvent.setWeekList(CoverUtil.getList(lists));
+        return calendarEvent;
     }
 
 }

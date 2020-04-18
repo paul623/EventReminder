@@ -52,10 +52,10 @@ public class CalendarManager {
         this.CALENDARS_ACCOUNT_TYPE = activity.getPackageName();
         this.CALENDARS_DISPLAY_NAME = CALENDAR_NAME+"账户";
         context = activity.getApplicationContext();
-
+        init();
     }
 
-    public void init() {
+    private void init() {
         //申请权限
         if (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
@@ -187,7 +187,7 @@ public class CalendarManager {
         this.alarm_seconds = seconds;
     }
 
-    private void addScheduleToCalender(Context context, int calId, CalendarEvent model, int curWeek, OnExportProgressListener listener) {
+    private boolean addScheduleToCalender(Context context, int calId, CalendarEvent model, int curWeek, OnExportProgressListener listener) {
         Set<Integer> weekSet = new HashSet<>();
         weekSet.addAll(model.getWeekList());
         String startTime = model.getStartTime();
@@ -195,11 +195,9 @@ public class CalendarManager {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         int thisDay = TimeUtil.getTodayWeekNumber();
-        int nowIndex = 0;
         String prefix = "";
 
         for (Integer i : weekSet) {
-            nowIndex++;
             Date date = TimeUtil.getTargetDate(curWeek, i, thisDay, model.getDayOfWeek());
             String dateString = sdf.format(date);
             try {
@@ -210,16 +208,15 @@ public class CalendarManager {
                         model.getContent() + "@" + CALENDARS_ACCOUNT_NAME,
                         model.getLoc(),
                         realStartDate, realEndDate, listener);
-                if (listener != null) {
-                    listener.onProgress(weekSet.size(), nowIndex);
-                }
             } catch (ParseException e) {
                 if (listener != null) {
                     listener.onError(e.getMessage());
+                    return false;
                 }
                 e.printStackTrace();
             }
         }
+        return true;
     }
 
     ;
@@ -269,11 +266,9 @@ public class CalendarManager {
             Uri uri = context.getContentResolver().insert(CalendarContract.Reminders.CONTENT_URI, reminders);
         }
         if (newEvent == null) { //添加日历事件失败直接返回
-            if(listener!=null){
+            if (listener != null) {
                 listener.onError("添加日历日程失败");
             }
-        }else {
-            listener.onSuccess();
         }
     }
 
@@ -361,21 +356,32 @@ public class CalendarManager {
     }
     /**
      * 添加日历事件
-     * @param mySubject 课表
+     * @param mySubjects 内容
      * @param listener 监听器，实现回调
      * */
-    public  void addCalendarEvent(CalendarEvent mySubject, int curWeek,OnExportProgressListener listener){
-        addScheduleToCalender(context,checkAndAddCalendarAccount(context),mySubject,
-                curWeek,listener);
+    public  void addCalendarEvent(List<CalendarEvent> mySubjects, int curWeek,OnExportProgressListener listener){
+        int count=0;
+        for(CalendarEvent i:mySubjects){
+            count++;
+            listener.onProgress(mySubjects.size(),count);
+            boolean result=addScheduleToCalender(context,checkAndAddCalendarAccount(context),i,
+                    curWeek,listener);
+            if(!result){
+                return;
+            }
+        }
+
     }
     /**
      * 添加日历事件
-     * @param mySubject 课表
+     * @param mySubject 内容
      * @param listener 监听器，实现回调
      * */
-    public  void addCalendarEvent(CalendarEvent mySubject,OnExportProgressListener listener){
-        addScheduleToCalender(context,checkAndAddCalendarAccount(context),mySubject,
-                TimeUtil.getCurWeek(),listener);
+    public  void addCalendarEvent(CalendarEvent mySubject,int curWeek, OnExportProgressListener listener){
+        if(addScheduleToCalender(context,checkAndAddCalendarAccount(context),mySubject,
+                curWeek,listener)){
+            listener.onSuccess();
+        }
     }
 
     /**

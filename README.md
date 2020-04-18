@@ -2,7 +2,8 @@
 
 安卓针对日历事件导出以及ics文件生成、解析封装库
 
-[![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)[![](https://img.shields.io/badge/version-0.0.1-yellow.svg)]https://bintray.com/paul623/EventReminder/eventreminder/0.0.1)
+[![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![](https://img.shields.io/badge/version-0.0.3-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.3)
 
 ## 碎碎念
 
@@ -17,7 +18,7 @@
 在项目中引用即可
 
 ```groovy
-implementation 'com.paul.eventreminder:eventreminder:0.0.1'
+implementation 'com.paul.eventreminder:eventreminder:0.0.3'
 ```
 
 ## 使用教程
@@ -36,33 +37,29 @@ implementation 'com.paul.eventreminder:eventreminder:0.0.1'
 CalendarManager calendarManager=new CalendarManager(this,"测试");
 ```
 
-调用其中的
+会自动请求日历写入权限，如果拒绝这一块逻辑我没有处理，你可以在自己的代码中去实现该逻辑。
 
-```java
-calendarManager.init();
-```
 
-来进行初始化操作（权限申请）
 
 添加一个事件的时候你需要创建一个CalendarEvent 对象，或者您也可以选择继承自这个类
 
 属性如下：
 
 ```java
- 	//总结
-    String summary;
-    //内容
-    String content;
-    //地点
-    String loc;
-    //周次
-    List<Integer> weekList;
-    //周几
-    int dayOfWeek;
-    //开始时间
-    String startTime;
-    //结束时间
-    String endTime;
+//总结
+String summary;
+//内容
+String content;
+//地点
+String loc;
+//周次
+List<Integer> weekList;
+//周几
+int dayOfWeek;
+//开始时间
+String startTime;
+//结束时间
+String endTime;
 ```
 
 这里的weeklist至关重要，因为通过该集合来控制事件的重复
@@ -96,21 +93,32 @@ public void deleteCalendarEvent(Context context,OnExportProgressListener listene
 
 值得一提的是，删除判断的是事件内容末尾的@+ACCOUNT_NAME，所以请保持该名称在创建和删除时候要相同。
 
-### ICSHelper
+### ICSManager
 
 初始化：
 
 ```java
-ICSManager icsManager=new ICSManager(Context context,String userName, OutPutListener listener)
+ICSManager icsManager=new ICSManager(Context context,String userName);
 ```
 
 同Calendar一样，你需要创建对应的CalendarEvent并传入
 
 ```java
-public void exportToFile(String filename, List<CalendarEvent>calendarEvents, int curWeek)
+icsManager.OutPutIcsFile(String filename,boolean useRule,List<CalendarEvent> calendarEvents,int curWeek,OutPutListener listener)
 ```
 
-开启提醒的方式也是如此：
+这里有一个参数为useRule，为bool类型
+
+true代表开启重复规则，false代表关闭
+
+开启重复规则后，根据你提供的weeklist来进行判断
+
+```
+形如 [1,2,3,4,5,6]或者[2,4,6,8,10]或者[1,3,5,7,9]都可以支持规则导出
+但如果是这种[1,2,3,4,6,8]不规则的，会自动按照重复逐一导出
+```
+
+开启提醒的方式：
 
 ```java
 icsManager.setAlarm_seconds(15);
