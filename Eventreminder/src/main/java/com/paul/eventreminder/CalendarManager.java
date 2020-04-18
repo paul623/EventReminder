@@ -45,12 +45,12 @@ public class CalendarManager {
     private boolean is_alarm = false;
     private int alarm_seconds = 15;
 
-    public CalendarManager(Activity activity, String CALENDARS_NAME, String CALENDARS_ACCOUNT_NAME, String CALENDARS_ACCOUNT_TYPE, String CALENDARS_DISPLAY_NAME) {
+    public CalendarManager(Activity activity, String CALENDAR_NAME) {
         this.activity = activity;
         this.CALENDARS_NAME = CALENDARS_NAME;
-        this.CALENDARS_ACCOUNT_NAME = CALENDARS_ACCOUNT_NAME;
-        this.CALENDARS_ACCOUNT_TYPE = CALENDARS_ACCOUNT_TYPE;
-        this.CALENDARS_DISPLAY_NAME = CALENDARS_DISPLAY_NAME;
+        this.CALENDARS_ACCOUNT_NAME = CALENDAR_NAME;
+        this.CALENDARS_ACCOUNT_TYPE = activity.getPackageName();
+        this.CALENDARS_DISPLAY_NAME = CALENDAR_NAME+"账户";
         context = activity.getApplicationContext();
 
     }
@@ -367,6 +367,15 @@ public class CalendarManager {
     public  void addCalendarEvent(CalendarEvent mySubject, int curWeek,OnExportProgressListener listener){
         addScheduleToCalender(context,checkAndAddCalendarAccount(context),mySubject,
                 curWeek,listener);
+    }
+    /**
+     * 添加日历事件
+     * @param mySubject 课表
+     * @param listener 监听器，实现回调
+     * */
+    public  void addCalendarEvent(CalendarEvent mySubject,OnExportProgressListener listener){
+        addScheduleToCalender(context,checkAndAddCalendarAccount(context),mySubject,
+                TimeUtil.getCurWeek(),listener);
     }
 
     /**

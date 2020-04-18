@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.paul.eventreminder.CalendarManager;
+import com.paul.eventreminder.ICSManager;
 import com.paul.eventreminder.model.CalendarEvent;
 
 import java.util.ArrayList;
@@ -21,8 +22,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        calendarManager=new CalendarManager(this,"测试","测试","com.paul.test","测试账户");
+        calendarManager=new CalendarManager(this,"测试");
         textView=findViewById(R.id.tv_main);
+
+
     }
 
     public void inputCalendar(View view) {

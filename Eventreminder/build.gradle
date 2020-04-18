@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'com.novoda.bintray-release'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -35,4 +35,31 @@ dependencies {
         exclude module: 'jackson-core'
         exclude group: 'com.fasterxml.jackson.core'
     }
+}
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.9.1'
+        classpath('net.sf.biweekly:biweekly:0.6.3') {
+            exclude module: 'jackson-core'
+            exclude group: 'com.fasterxml.jackson.core'
+        }
+    }
+}
+publish{
+    repoName='EventReminder'
+    userOrg='paul623'
+    groupId='com.paul.eventreminder'
+    artifactId='eventreminder'
+    publishVersion='0.0.1'
+    desc='Make Android Output Calendar Event more easier'
+    website='https://github.com/paul623/EventReminder'
+}
+
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
 }

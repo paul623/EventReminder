@@ -25,4 +25,9 @@ public class TimeUtil {
         }
         return curday;
     }
+    public static int getCurWeek(){
+        Calendar cal=Calendar.getInstance();
+        cal.setTime(new Date());
+        return cal.get(Calendar.WEEK_OF_YEAR);
+    }
 }
