@@ -54,6 +54,14 @@ public class ICSManager {
     Context context;
     Activity activity;
 
+    public boolean isFlag_download() {
+        return flag_download;
+    }
+
+    public void setFlag_download(boolean flag_download) {
+        this.flag_download = flag_download;
+    }
+
     public boolean isFlag_alarm() {
         return flag_alarm;
     }

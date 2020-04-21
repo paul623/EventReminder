@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
     public void exportCalendar(View view) {
         icsManager.setFlag_alarm(true);
         icsManager.setAlarm_seconds(20);
-        icsManager.setFlag_alarm(true);
+        icsManager.setFlag_download(true);
         List<CalendarEvent> calendarEvents=new ArrayList<>();
         calendarEvents.add(getTestEvent());
         icsManager.OutPutIcsFile("testICS", true,calendarEvents, 8, new ICSManager.OutPutListener() {

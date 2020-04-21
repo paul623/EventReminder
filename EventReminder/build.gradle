@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 5
-        versionName "0.0.5"
+        versionCode 6
+        versionName "0.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -52,7 +52,7 @@ publish{
     userOrg='paul623'
     groupId='com.paul.eventreminder'
     artifactId='eventreminder'
-    publishVersion='0.0.5'
+    publishVersion='0.0.6'
     desc='Make Android Output Calendar Event more easier'
     website='https://github.com/paul623/EventReminder'
 }
