@@ -3,7 +3,7 @@
 安卓针对日历事件导出以及ics文件生成、解析封装库
 
 [![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![](https://img.shields.io/badge/version-0.0.5-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.3)
+[![](https://img.shields.io/badge/version-0.0.6-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.3)
 
 ## 碎碎念
 
@@ -18,7 +18,7 @@
 在项目中引用即可
 
 ```groovy
-implementation 'com.paul.eventreminder:eventreminder:0.0.5'
+implementation 'com.paul.eventreminder:eventreminder:0.0.6'
 ```
 
 ## 使用教程
