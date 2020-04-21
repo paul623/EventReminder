@@ -18,12 +18,13 @@ import java.util.List;
 
 public class MainActivity extends Activity {
     CalendarManager calendarManager;
+    ICSManager icsManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         calendarManager=new CalendarManager(this,"测试");
-
+        icsManager=new ICSManager(MainActivity.this,"测试");
     }
 
     public void inputCalendar(View view) {
@@ -50,7 +51,7 @@ public class MainActivity extends Activity {
     }
 
     public void deleteCalendar(View view) {
-        calendarManager.deleteCalendarEvent(MainActivity.this, new CalendarManager.OnExportProgressListener() {
+        calendarManager.deleteCalendarEvent(new CalendarManager.OnExportProgressListener() {
             @Override
             public void onProgress(int total, int now) {
 
@@ -69,9 +70,9 @@ public class MainActivity extends Activity {
     }
 
     public void exportCalendar(View view) {
-        ICSManager icsManager=new ICSManager(MainActivity.this,"测试");
-        icsManager.setFalg_alarm(true);
+        icsManager.setFlag_alarm(true);
         icsManager.setAlarm_seconds(20);
+        icsManager.setFlag_alarm(true);
         List<CalendarEvent> calendarEvents=new ArrayList<>();
         calendarEvents.add(getTestEvent());
         icsManager.OutPutIcsFile("testICS", true,calendarEvents, 8, new ICSManager.OutPutListener() {
@@ -99,7 +100,7 @@ public class MainActivity extends Activity {
         calendarEvent.setEndTime("10:00");
         calendarEvent.setSummary("测试课程");
         calendarEvent.setLoc("教室");
-        Integer lists[]={2,4,6,8,10};
+        Integer[] lists ={2,4,6,8,10};
         calendarEvent.setWeekList(CoverUtil.getList(lists));
         return calendarEvent;
     }

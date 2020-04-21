@@ -6,17 +6,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <Button
         android:onClick="inputCalendar"
-        android:text="点我插入日历"
+        android:id="@+id/btn_insert"
+        android:text="@string/add_calendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <Button
         android:onClick="deleteCalendar"
-        android:text="点我删除"
+        android:id="@+id/btn_cancel"
+        android:text="@string/cancel_calendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <Button
         android:onClick="exportCalendar"
-        android:text="点我生成Ics"
+        android:id="@+id/btn_export"
+        android:text="@string/ics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

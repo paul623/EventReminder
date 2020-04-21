@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">OutPutCalendarDemo</string>
+    <string name="add_calendar">点我插入日历</string>
+    <string name="cancel_calendar">点我删除</string>
+    <string name="ics">点我生成Ics</string>
 </resources>

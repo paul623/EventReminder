@@ -1,14 +1,33 @@
 package com.paul.eventreminder;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.paul.eventreminder.model.CalendarEvent;
 import com.paul.eventreminder.utils.ColorPool;
 import com.paul.eventreminder.utils.ICSRulesHelper;
 import com.paul.eventreminder.utils.TimeUtil;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,18 +47,33 @@ import biweekly.property.Trigger;
 import biweekly.util.Duration;
 
 public class ICSManager {
-    boolean falg_alarm=false;
+    boolean flag_alarm=false;
+    boolean flag_download=true;
     int alarm_seconds=15;
-    String userName="默认日历";
+    String userName;
     Context context;
+    Activity activity;
 
-    public ICSManager(Context context,String userName) {
-        this.userName = userName;
-        this.context=context;
+    public boolean isFlag_alarm() {
+        return flag_alarm;
     }
 
-    public void setFalg_alarm(boolean falg_alarm) {
-        this.falg_alarm = falg_alarm;
+    public ICSManager(Activity activity, String userName) {
+        this.userName = userName;
+        this.context=activity.getApplicationContext();
+        this.activity=activity;
+        init();
+    }
+    private void init(){
+        //android.permission.WRITE_EXTERNAL_STORAGE
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+    }
+    public void setFlag_alarm(boolean falg_alarm) {
+        this.flag_alarm = falg_alarm;
     }
 
     public void setAlarm_seconds(int alarm_seconds) {
@@ -71,6 +105,11 @@ public class ICSManager {
             listener.onError(e+"");
             e.printStackTrace();
         }
+        if(flag_download){
+            insertToDownloadDir(file,filename);
+        }
+
+
     }
     /**
      * 把数据源转为VEvent
@@ -122,7 +161,7 @@ public class ICSManager {
                 String des="第"+i+"周 | "+model.getStartTime()+"-"+model.getEndTime()+" "+model.getContent();
                 event.setDescription(des);
                 event.setColor(color);
-                if(falg_alarm){
+                if(flag_alarm){
                     Duration duration = Duration.builder().prior(true).minutes(alarm_seconds).build();
                     Trigger trigger = new Trigger(duration, Related.START);
                     VAlarm alarm = VAlarm.display(trigger, model.getSummary()+"于"+alarm_seconds+"分钟后开始");
@@ -156,7 +195,7 @@ public class ICSManager {
             exportToFile(filename,getDataSource(calendarEvents,curWeek,listener),listener);
         }
     }
-    public List<VEvent> getEventByRule(int curWeek, List<CalendarEvent> calendarEvents, OutPutListener listener){
+    private List<VEvent> getEventByRule(int curWeek, List<CalendarEvent> calendarEvents, OutPutListener listener){
         List<VEvent> events=new ArrayList<>();
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdf2=new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -184,7 +223,7 @@ public class ICSManager {
                     String des=model.getStartTime()+"-"+model.getEndTime()+" "+model.getContent();
                     event.setDescription(des);
                     event.setColor(ColorPool.getColor());
-                    if(falg_alarm){
+                    if(flag_alarm){
                         Duration duration = Duration.builder().prior(true).minutes(alarm_seconds).build();
                         Trigger trigger = new Trigger(duration, Related.START);
                         VAlarm alarm = VAlarm.display(trigger, model.getSummary()+"于"+alarm_seconds+"分钟后开始");
@@ -200,5 +239,51 @@ public class ICSManager {
 
         }
         return events;
+    }
+
+
+    public void insertToDownloadDir(File file,String fileName){
+
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q){
+            ContentValues values=new ContentValues();
+            ContentResolver contentResolver=context.getContentResolver();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME,fileName+".ics");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            Uri uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try {
+                    FileInputStream fin=new FileInputStream(file);//输入流
+                    OutputStream outputStream = contentResolver.openOutputStream(uri);
+                    if (outputStream != null) {
+                        byte[]b=new byte[1024];
+                        while((fin.read(b))!=-1) {//读取到末尾 返回-1 否则返回读取的字节个数
+                            outputStream.write(b);
+                        }
+                        fin.close();
+                        outputStream.close();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }else {
+            String path=Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+            try {
+                FileInputStream fin=new FileInputStream(file);//输入流
+                File newfile=new File(path,fileName+".ics");
+                FileOutputStream fout=new FileOutputStream(newfile,true);//输出流
+                byte[]b=new byte[1024];
+                while((fin.read(b))!=-1) {//读取到末尾 返回-1 否则返回读取的字节个数
+                    fout.write(b);
+                }
+                fin.close();
+                fout.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }

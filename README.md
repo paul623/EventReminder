@@ -3,7 +3,7 @@
 安卓针对日历事件导出以及ics文件生成、解析封装库
 
 [![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![](https://img.shields.io/badge/version-0.0.3-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.3)
+[![](https://img.shields.io/badge/version-0.0.5-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.3)
 
 ## 碎碎念
 
@@ -18,7 +18,7 @@
 在项目中引用即可
 
 ```groovy
-implementation 'com.paul.eventreminder:eventreminder:0.0.3'
+implementation 'com.paul.eventreminder:eventreminder:0.0.5'
 ```
 
 ## 使用教程
@@ -88,7 +88,7 @@ String endTime;
 删除事件也很简单，直接调用delete方法即可。
 
 ```java
-public void deleteCalendarEvent(Context context,OnExportProgressListener listener)
+public void deleteCalendarEvent(OnExportProgressListener listener)
 ```
 
 值得一提的是，删除判断的是事件内容末尾的@+ACCOUNT_NAME，所以请保持该名称在创建和删除时候要相同。
@@ -99,6 +99,12 @@ public void deleteCalendarEvent(Context context,OnExportProgressListener listene
 
 ```java
 ICSManager icsManager=new ICSManager(Context context,String userName);
+```
+
+生成的ics默认保存在私有目录下，如果要开启保存在Download路径下，请使用：
+
+```java
+icsManager.setFlag_alarm(true);//默认为开启状态
 ```
 
 同Calendar一样，你需要创建对应的CalendarEvent并传入
@@ -122,7 +128,7 @@ true代表开启重复规则，false代表关闭
 
 ```java
 icsManager.setAlarm_seconds(15);
-icsManager.setFalg_alarm(true);
+icsManager.setFlag_alarm(true);
 ```
 
 在回调函数中，onSuccess方法会传回来一个生成文件路径，由于该文件是保存在包名下的私有目录，因此不需要任何读写权限。

@@ -92,8 +92,7 @@ public class CalendarManager {
      * 检查是否存在现有账户，存在则返回账户id，否则返回-1
      */
     private int checkCalendarAccount(Context context) {
-        Cursor userCursor = context.getContentResolver().query(Uri.parse(CALENDER_URL), null, null, null, null);
-        try {
+        try (Cursor userCursor = context.getContentResolver().query(Uri.parse(CALENDER_URL), null, null, null, null)) {
             if (userCursor == null) { //查询返回空值
                 return -1;
             }
@@ -104,10 +103,6 @@ public class CalendarManager {
             } else {
                 return -1;
             }
-        } finally {
-            if (userCursor != null) {
-                userCursor.close();
-            }
         }
     }
 
@@ -116,8 +111,7 @@ public class CalendarManager {
      */
     private List<Map<String, String>> listCalendarAccount(Context context) {
         List<Map<String, String>> result = new ArrayList<>();
-        Cursor userCursor = context.getContentResolver().query(Uri.parse(CALENDER_URL), null, null, null, null);
-        try {
+        try (Cursor userCursor = context.getContentResolver().query(Uri.parse(CALENDER_URL), null, null, null, null)) {
             if (userCursor != null && userCursor.getCount() > 0) {
                 for (userCursor.moveToFirst(); !userCursor.isAfterLast(); userCursor.moveToNext()) {
                     String account = userCursor.getString(userCursor.getColumnIndex(CalendarContract.Calendars.ACCOUNT_NAME));
@@ -129,10 +123,6 @@ public class CalendarManager {
                     map.put("calId", String.valueOf(calId));
                     result.add(map);
                 }
-            }
-        } finally {
-            if (userCursor != null) {
-                userCursor.close();
             }
         }
         if (result.isEmpty()) {
@@ -175,8 +165,7 @@ public class CalendarManager {
 
         Uri result = context.getContentResolver().insert(calendarUri, value);
         // 获取事件ID
-        long id = result == null ? -1 : ContentUris.parseId(result);
-        return id;
+        return result == null ? -1 : ContentUris.parseId(result);
     }
 
     public void setAlarm(boolean flag) {
@@ -219,7 +208,7 @@ public class CalendarManager {
         return true;
     }
 
-    ;
+
 
     /**
      * 添加日历事件
@@ -279,8 +268,7 @@ public class CalendarManager {
         if (context == null) {
             return;
         }
-        Cursor eventCursor = context.getContentResolver().query(Uri.parse(CALENDER_EVENT_URL), null, null, null, null);
-        try {
+        try (Cursor eventCursor = context.getContentResolver().query(Uri.parse(CALENDER_EVENT_URL), null, null, null, null)) {
             if (eventCursor == null) { //查询返回空值
                 return;
             }
@@ -298,51 +286,42 @@ public class CalendarManager {
                     }
                 }
             }
-        } finally {
-            if (eventCursor != null) {
-                eventCursor.close();
-            }
         }
     }
 
     /**
      * 删除日历事件
      */
-    private  void deleteCalendarSchedule(final Context context,OnExportProgressListener listener) {
+    private  void deleteCalendarSchedule(OnExportProgressListener listener) {
         if (context == null) {
             return;
         }
-        Cursor eventCursor = context.getContentResolver().query(Uri.parse(CALENDER_EVENT_URL), null, null, null, null);
-        try {
+        try (Cursor eventCursor = context.getContentResolver().query(Uri.parse(CALENDER_EVENT_URL), null, null, null, null)) {
             if (eventCursor == null) { //查询返回空值
                 listener.onError("找不到任何事件");
                 return;
             }
             if (eventCursor.getCount() > 0) {
                 //遍历所有事件，找到title跟需要查询的title一样的项
-                int i=0;
+                int i = 0;
                 for (eventCursor.moveToFirst(); !eventCursor.isAfterLast(); eventCursor.moveToNext()) {
                     i++;
                     String description = eventCursor.getString(eventCursor.getColumnIndex("description"));
-                    if (!TextUtils.isEmpty(description) && description.endsWith("@"+CALENDARS_ACCOUNT_NAME)) {
+                    if (!TextUtils.isEmpty(description) && description.endsWith("@" + CALENDARS_ACCOUNT_NAME)) {
                         int id = eventCursor.getInt(eventCursor.getColumnIndex(CalendarContract.Calendars._ID));//取得id
                         Uri deleteUri = ContentUris.withAppendedId(Uri.parse(CALENDER_EVENT_URL), id);
                         int rows = context.getContentResolver().delete(deleteUri, null, null);
-                        if(listener!=null){
-                            listener.onProgress(eventCursor.getCount(),i);
+                        if (listener != null) {
+                            listener.onProgress(eventCursor.getCount(), i);
                         }
                         if (rows == -1) { //事件删除失败
-                            if(listener!=null){
+                            if (listener != null) {
                                 listener.onError("事件删除失败");
                             }
                             return;
                         }
                     }
                 }
-            }
-        } finally {
-            if (eventCursor != null) {
-                eventCursor.close();
             }
         }
         if (listener != null) {
@@ -386,10 +365,9 @@ public class CalendarManager {
 
     /**
      * 删除日历事件
-     * @param context 上下文
      * @param listener 监听器，实现回调
      * */
-    public  void deleteCalendarEvent(Context context,OnExportProgressListener listener){
-        deleteCalendarSchedule(context,listener);
+    public  void deleteCalendarEvent(OnExportProgressListener listener){
+        deleteCalendarSchedule(listener);
     }
 }
