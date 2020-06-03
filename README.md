@@ -4,6 +4,14 @@
 
 [![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![](https://img.shields.io/badge/version-0.0.6-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.3)
+## 近日计划
+最近比较忙，这一块也没怎么更新o(╥﹏╥)o
+最近整理了两种不同的需求：
+1.单个不重复事件，已知日期：2020-6-3 这种形式的
+2.无限重复形式，如提醒喝水啥的。。。
+本库当初是从课表导出中抽离出来的，故重复规则这块着实欠考虑，不具有通用性
+近期会解决以上两个问题
+如果有什么好的意见欢迎提出issue
 
 ## 碎碎念
 
