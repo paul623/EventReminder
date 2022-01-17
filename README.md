@@ -3,7 +3,7 @@
 安卓针对日历事件导出以及ics文件生成、解析封装库
 
 [![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![](https://img.shields.io/badge/version-0.0.6-yellow.svg)](https://bintray.com/paul623/EventReminder/eventreminder/0.0.6)
+[![](https://jitpack.io/v/paul623/EventReminder.svg)](https://jitpack.io/#paul623/EventReminder)
 ## 近日计划
 最近比较忙，这一块也没怎么更新o(╥﹏╥)o
 最近整理了两种不同的需求：
@@ -22,12 +22,23 @@
 * 自己做的项目都会涉及到事件导出功能，不想重复写代码
 
 ## 食用方法
-
-在项目中引用即可
-
+最新版本：[![](https://jitpack.io/v/paul623/EventReminder.svg)](https://jitpack.io/#paul623/EventReminder)
+Add it in your root build.gradle at the end of repositories:
 ```groovy
-implementation 'com.paul.eventreminder:eventreminder:0.0.6'
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+ ```
+Step 2. Add the dependency
+```groovy
+dependencies {
+	        implementation 'com.github.paul623:WebDavSyncerDemo:0.0.5'
+	}
 ```
+
 
 ## 使用教程
 
