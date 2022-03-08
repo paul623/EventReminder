@@ -35,7 +35,7 @@ allprojects {
 Step 2. Add the dependency
 ```groovy
 dependencies {
-	        implementation 'com.github.paul623:WebDavSyncerDemo:0.0.5'
+	        implementation 'com.github.paul623:EventReminder:0.0.6'
 	}
 ```
 
