@@ -4,6 +4,7 @@
 
 [![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![](https://jitpack.io/v/paul623/EventReminder.svg)](https://jitpack.io/#paul623/EventReminder)
+[![Security Status](https://s.murphysec.com/badge/paul623/EventReminder.svg)](https://www.murphysec.com/p/paul623/EventReminder)
 ## 近日计划
 最近比较忙，这一块也没怎么更新o(╥﹏╥)o
 最近整理了两种不同的需求：
